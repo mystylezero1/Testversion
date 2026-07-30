@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hochzeitsgesellschaft Anja & Dino</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="welcome">
+        <div class="welcome-box">
+            <h1>💍</h1>
+            <h2>Hochzeitsgesellschaft</h2>
+            <h3>Anja & Dino</h3>
+
+            <input type="text" id="search" placeholder="Dein Name eingeben..." autocomplete="off">
+            <button id="finden">Gast finden</button>
+            <button id="zeigeGesamtenPlanBtn" class="btn-secondary">Gesamten Saalplan anzeigen</button>
+        </div>
+    </div>
+
+    <div id="overlay" class="hidden">
+        <div id="saalplan">
+            <div id="speech" class="speech hidden"></div>
+
+            <div id="brautbereich">
+                <div id="brauttisch"></div>
+            </div>
+
+            <div id="tische"></div>
+
+            <div class="saal-unten">
+                <div class="eingang">🚪 Eingang</div>
+                <div class="dj">🎧 DJ & Tanzfläche</div>
+            </div>
+        </div>
+    </div>
+
+    <button id="neueSucheBtn" class="hidden">🔍 Neue Suche</button>
+
+    <audio id="ding" src="ding.mp3" preload="auto"></audio>
+
+    <!-- App -->
+    <script src="app.js"></script>
+</body>
+</html>
