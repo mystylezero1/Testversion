@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow, noarchive">
+    <meta name="referrer" content="no-referrer">
     <title>Hochzeitsgesellschaft Anja & Dino</title>
-
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-
+    
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -18,9 +20,9 @@
             <h1>💍</h1>
             <h2>Hochzeitsgesellschaft</h2>
             <h3>Anja & Dino</h3>
-
-            <input type="text" id="search" placeholder="Dein Name eingeben..." autocomplete="off">
-            <button id="finden">Gast finden</button>
+            
+            <input type="text" id="search" placeholder="Name oder Tischnummer..." autocomplete="off">
+            <button id="finden">Gast oder Tisch finden</button>
             <button id="zeigeGesamtenPlanBtn" class="btn-secondary">Gesamten Saalplan anzeigen</button>
         </div>
     </div>
@@ -28,7 +30,7 @@
     <div id="overlay" class="hidden">
         <div id="saalplan">
             <div id="speech" class="speech hidden"></div>
-
+            
             <div id="brautbereich">
                 <div id="brauttisch"></div>
             </div>
@@ -45,8 +47,8 @@
     <button id="neueSucheBtn" class="hidden">🔍 Neue Suche</button>
 
     <audio id="ding" src="ding.mp3" preload="auto"></audio>
-
-    <!-- App -->
+    <!-- Korrigierter Confetti CDN Script-Link -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
