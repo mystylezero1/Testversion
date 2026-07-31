@@ -46,8 +46,25 @@
 
     <button id="neueSucheBtn" class="hidden">🔍 Neue Suche</button>
 
+    <!-- Admin Button unten links -->
+    <button id="adminOpenBtn">⚙️ Admin</button>
+
+    <!-- Admin Modal -->
+    <div id="adminModal" class="auswahl-modal hidden">
+        <div class="admin-box">
+            <div class="admin-header">
+                <h3>⚙️ Admin-Konsole</h3>
+                <button id="adminCloseBtn" class="close-x">&times;</button>
+            </div>
+            <input type="text" id="adminSearch" placeholder="Gästename filtern..." autocomplete="off">
+            <div id="adminGaesteListe" class="admin-liste"></div>
+            <div class="admin-footer">
+                <button id="downloadJsonBtn" class="btn-success">💾 Neue data.json herunterladen</button>
+            </div>
+        </div>
+    </div>
+
     <audio id="ding" src="ding.mp3" preload="auto"></audio>
-    <!-- Korrigierter Confetti CDN Script-Link -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="app.js"></script>
 </body>
