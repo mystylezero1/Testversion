@@ -46,7 +46,7 @@
 
     <button id="neueSucheBtn" class="hidden">🔍 Neue Suche</button>
 
-    <!-- Admin Button unten links -->
+    <!-- Admin Button unten links (nur auf Desktop) -->
     <button id="adminOpenBtn">⚙️ Admin</button>
 
     <!-- Admin Modal -->
@@ -56,8 +56,28 @@
                 <h3>⚙️ Admin-Konsole</h3>
                 <button id="adminCloseBtn" class="close-x">&times;</button>
             </div>
+
+            <!-- Gast hinzufügen Bereich -->
+            <div class="admin-add-section">
+                <h4>➕ Gast hinzufügen</h4>
+                <div class="admin-add-grid">
+                    <input type="text" id="addGastName" placeholder="Name (z.B. Max Mustermann)">
+                    <input type="text" id="addGastTisch" placeholder="Tisch (z.B. 3 oder Braut)">
+                    <input type="number" id="addGastPlatz" placeholder="Platz (z.B. 1)">
+                    <label class="admin-checkbox-label">
+                        <input type="checkbox" id="addGastKind"> Kind
+                    </label>
+                    <button id="addGastBtn" class="btn-add">Hinzufügen</button>
+                </div>
+            </div>
+
+            <hr class="admin-divider">
+
+            <h4>📋 Gästeliste verwalten</h4>
             <input type="text" id="adminSearch" placeholder="Gästename filtern..." autocomplete="off">
+            
             <div id="adminGaesteListe" class="admin-liste"></div>
+            
             <div class="admin-footer">
                 <button id="downloadJsonBtn" class="btn-success">💾 Neue data.json herunterladen</button>
             </div>
