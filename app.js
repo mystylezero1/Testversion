@@ -62,6 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const adminModal = document.getElementById("adminModal");
     const adminSearch = document.getElementById("adminSearch");
     const downloadJsonBtn = document.getElementById("downloadJsonBtn");
+    const addGastBtn = document.getElementById("addGastBtn");
 
     if (adminOpenBtn) {
         adminOpenBtn.addEventListener("click", () => {
@@ -80,6 +81,10 @@ document.addEventListener("DOMContentLoaded", () => {
         adminSearch.addEventListener("input", () => {
             renderAdminListe(adminSearch.value.trim().toLowerCase());
         });
+    }
+
+    if (addGastBtn) {
+        addGastBtn.addEventListener("click", neuerGastHinzufuegen);
     }
 
     if (downloadJsonBtn) {
@@ -107,7 +112,7 @@ function sitzplanErstellen() {
     tische.innerHTML = "";
 
     // Brauttisch
-    let brautGaeste = gaeste.filter(g => g.tisch === "Braut");
+    let brautGaeste = gaeste.filter(g => String(g.tisch).toLowerCase() === "braut");
     brautGaeste.sort((a, b) => a.platz - b.platz);
 
     let obenBraut = brautGaeste.filter(g => g.platz >= 1 && g.platz <= 8);
@@ -135,7 +140,7 @@ function sitzplanErstellen() {
         17: { col: 1, row: 4 }, 18: { col: 2, row: 4 }, 19: { col: 3, row: 4 }, 20: { col: 4, row: 4 }
     };
 
-    let nummern = [...new Set(gaeste.filter(g => g.tisch !== "Braut").map(g => Number(g.tisch)))];
+    let nummern = [...new Set(gaeste.filter(g => String(g.tisch).toLowerCase() !== "braut").map(g => Number(g.tisch)))];
     nummern.sort((a, b) => a - b);
 
     const isDesktop = window.innerWidth >= 1200;
@@ -187,7 +192,7 @@ function sitzplanErstellen() {
     tische.appendChild(buffetDiv);
 }
 
-// HTML für einzelne Sitzplätze
+// HTML für einzelne Sitzplätze (Stern ⭐ wird nur angezeigt wenn g.kind true ist)
 function platzHTML(g) {
     if (g.disabled) {
         return `<div class="platz disabled"></div>`;
@@ -216,7 +221,6 @@ function sucheGast() {
     const eingabe = searchInput.value.trim().toLowerCase();
     if (eingabe === "") return;
 
-    // Prüfen, ob nach Tischnummer gesucht wird (z. B. "5" oder "Tisch 5")
     const tischMatch = eingabe.match(/^(?:tisch\s*)?(\d+)$/i);
     if (tischMatch) {
         const tischNummer = tischMatch[1];
@@ -224,7 +228,6 @@ function sucheGast() {
         return;
     }
 
-    // Suche nach Gästenamen
     const treffer = gaeste.filter(g => !g.disabled && g.name.toLowerCase().includes(eingabe));
 
     if (treffer.length === 0) {
@@ -268,7 +271,7 @@ function auswahlMenueAnzeigen(trefferListe) {
     `;
 
     trefferListe.forEach((g, index) => {
-        const tischBez = g.tisch === "Braut" ? "Brauttisch" : `Tisch ${g.tisch}`;
+        const tischBez = String(g.tisch).toLowerCase() === "braut" ? "Brauttisch" : `Tisch ${g.tisch}`;
         html += `
             <button class="auswahl-btn" onclick="waehleGastAus(${index})">
                 <b>${g.name}</b>
@@ -313,7 +316,7 @@ function zeigeGastOnPlan(gast) {
     clearHighlights();
 
     let zielElement;
-    if (gast.tisch === "Braut") {
+    if (String(gast.tisch).toLowerCase() === "braut") {
         zielElement = document.getElementById("brauttisch");
     } else {
         zielElement = document.querySelector(`.tisch-box[data-tisch="${gast.tisch}"]`);
@@ -322,7 +325,6 @@ function zeigeGastOnPlan(gast) {
     if (zielElement) {
         zielElement.classList.add("highlight");
         
-        // Markiere den spezifischen Sitzplatz
         const nameCard = zielElement.querySelector(`.platz[data-platz="${gast.platz}"]`);
         if (nameCard) {
             nameCard.classList.add("highlight-name");
@@ -341,7 +343,6 @@ function anzeigeSprechblase(name) {
     const speech = document.getElementById("speech");
     if (!speech) return;
 
-    // Audio abspielen
     const audio = document.getElementById("ding");
     if (audio) {
         audio.currentTime = 0;
@@ -376,32 +377,88 @@ function renderAdminListe(filter = "") {
         const row = document.createElement("div");
         row.className = "admin-row";
 
-        const tischText = gast.tisch === "Braut" ? "Brauttisch" : `Tisch ${gast.tisch}`;
+        const tischText = String(gast.tisch).toLowerCase() === "braut" ? "Brauttisch" : `Tisch ${gast.tisch}`;
 
+        // Checkbox direkt hinter dem Namen platziert
         row.innerHTML = `
             <div class="admin-row-info">
-                <span class="admin-row-name">${gast.name}</span>
+                <span class="admin-row-name">
+                    ${gast.name}
+                    <label class="admin-checkbox-label">
+                        <input type="checkbox" ${gast.kind ? "checked" : ""} onchange="toggleKindState('${gast.name}', '${gast.tisch}', ${gast.platz}, this.checked)">
+                        Kind
+                    </label>
+                </span>
                 <span class="admin-row-tisch">${tischText} (Platz ${gast.platz})</span>
             </div>
-            <label class="admin-checkbox-label">
-                <input type="checkbox" ${gast.kind ? "checked" : ""} onchange="toggleKindState('${gast.name}', ${gast.platz}, this.checked)">
-                Kind ⭐
-            </label>
+            <div class="admin-row-actions">
+                <button class="btn-delete" title="Gast entfernen" onclick="entferneGast('${gast.name}', '${gast.tisch}', ${gast.platz})">🗑️</button>
+            </div>
         `;
         listeContainer.appendChild(row);
     });
 }
 
-// Wenn Haken gesetzt/entfernt wird
-window.toggleKindState = function(name, platz, isKind) {
-    const target = gaeste.find(g => g.name === name && g.platz === platz);
+// Gast Hinzufügen
+function neuerGastHinzufuegen() {
+    const nameInput = document.getElementById("addGastName");
+    const tischInput = document.getElementById("addGastTisch");
+    const platzInput = document.getElementById("addGastPlatz");
+    const kindInput = document.getElementById("addGastKind");
+
+    const name = nameInput.value.trim();
+    let tisch = tischInput.value.trim();
+    const platz = Number(platzInput.value.trim());
+    const isKind = kindInput.checked;
+
+    if (!name || !tisch || !platz) {
+        alert("Bitte fülle Name, Tisch und Platznummer aus.");
+        return;
+    }
+
+    if (tisch.toLowerCase() !== "braut" && !isNaN(tisch)) {
+        tisch = Number(tisch);
+    }
+
+    const neuerGast = {
+        name: name,
+        tisch: tisch,
+        platz: platz
+    };
+    if (isKind) neuerGast.kind = true;
+
+    gaeste.push(neuerGast);
+
+    nameInput.value = "";
+    tischInput.value = "";
+    platzInput.value = "";
+    kindInput.checked = false;
+
+    sitzplanErstellen();
+    renderAdminListe(document.getElementById("adminSearch").value.trim().toLowerCase());
+}
+
+// Gast Entfernen
+window.entferneGast = function(name, tisch, platz) {
+    if (!confirm(`Möchtest du ${name} wirklich vom Sitzplan entfernen?`)) return;
+
+    const index = gaeste.findIndex(g => g.name === name && String(g.tisch) === String(tisch) && g.platz == platz);
+    if (index !== -1) {
+        gaeste.splice(index, 1);
+        sitzplanErstellen();
+        renderAdminListe(document.getElementById("adminSearch").value.trim().toLowerCase());
+    }
+};
+
+// Wenn Kind-Haken gesetzt/entfernt wird
+window.toggleKindState = function(name, tisch, platz, isKind) {
+    const target = gaeste.find(g => g.name === name && String(g.tisch) === String(tisch) && g.platz == platz);
     if (target) {
         if (isKind) {
             target.kind = true;
         } else {
             delete target.kind;
         }
-        // Sitzplan im Hintergrund live neu rendern
         sitzplanErstellen();
     }
 };
