@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (neueSucheBtn) neueSucheBtn.classList.add("hidden");
     if (welcome) welcome.classList.remove("hidden");
 
-    // Event Listener für Buttons & Eingabe
+    // Event Listener für Suche
     const findenBtn = document.getElementById("finden");
     if (findenBtn) findenBtn.addEventListener("click", sucheGast);
 
@@ -56,7 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Admin Modal Event-Listener
+    // Admin Modal Listeners
     const adminOpenBtn = document.getElementById("adminOpenBtn");
     const adminCloseBtn = document.getElementById("adminCloseBtn");
     const adminModal = document.getElementById("adminModal");
@@ -96,7 +96,8 @@ document.addEventListener("DOMContentLoaded", () => {
 fetch("data.json")
     .then(r => r.json())
     .then(data => {
-        gaeste = data;
+        // Eindeutige interne IDs vergeben, um die Bearbeitung sicherzustellen
+        gaeste = data.map((g, idx) => ({ id: g.id || (Date.now() + idx), ...g }));
         sitzplanErstellen();
     })
     .catch(err => console.error("Fehler beim Laden der data.json:", err));
@@ -132,7 +133,7 @@ function sitzplanErstellen() {
         </div>
     `;
 
-    // Numerierte Tische (Positionierung im Grid)
+    // Numerierte Tische
     const tischPositionen = {
         3:  { col: 1, row: 1 }, 4:  { col: 2, row: 1 }, 5:  { col: 3, row: 1 }, 6:  { col: 4, row: 1 }, 7:  { col: 5, row: 1 },
         8:  { col: 1, row: 2 }, 9:  { col: 2, row: 2 }, 10: { col: 3, row: 2 }, 11: { col: 4, row: 2 }, 12: { col: 5, row: 2 },
@@ -178,7 +179,7 @@ function sitzplanErstellen() {
         tische.appendChild(box);
     });
 
-    // Buffet & Ausschank Box
+    // Buffet
     const buffetDiv = document.createElement("div");
     buffetDiv.className = "buffet-box";
     if (isDesktop) {
@@ -192,7 +193,6 @@ function sitzplanErstellen() {
     tische.appendChild(buffetDiv);
 }
 
-// HTML für einzelne Sitzplätze (Stern ⭐ wird nur angezeigt wenn g.kind true ist)
 function platzHTML(g) {
     if (g.disabled) {
         return `<div class="platz disabled"></div>`;
@@ -207,13 +207,11 @@ function platzHTML(g) {
     `;
 }
 
-// --- HIGHLIGHTS ZURÜCKSETZEN ---
 function clearHighlights() {
     document.querySelectorAll(".highlight").forEach(t => t.classList.remove("highlight"));
     document.querySelectorAll(".highlight-name").forEach(n => n.classList.remove("highlight-name"));
 }
 
-// --- SUCH-LOGIK ---
 function sucheGast() {
     const searchInput = document.getElementById("search");
     if (!searchInput) return;
@@ -338,7 +336,6 @@ function zeigeGastOnPlan(gast) {
     anzeigeSprechblase(gast.name);
 }
 
-// --- SPRECHBLASE, SOUND & KONFETTI ---
 function anzeigeSprechblase(name) {
     const speech = document.getElementById("speech");
     if (!speech) return;
@@ -364,7 +361,8 @@ function anzeigeSprechblase(name) {
     }, 4000);
 }
 
-// --- ADMIN KONSOLE LOGIK ---
+// --- ADMIN LOGIK MIT VOLLSTÄNDIGER BEARBEITBARKEIT ---
+
 function renderAdminListe(filter = "") {
     const listeContainer = document.getElementById("adminGaesteListe");
     if (!listeContainer) return;
@@ -377,29 +375,43 @@ function renderAdminListe(filter = "") {
         const row = document.createElement("div");
         row.className = "admin-row";
 
-        const tischText = String(gast.tisch).toLowerCase() === "braut" ? "Brauttisch" : `Tisch ${gast.tisch}`;
-
-        // Checkbox direkt hinter dem Namen platziert
         row.innerHTML = `
-            <div class="admin-row-info">
-                <span class="admin-row-name">
-                    ${gast.name}
-                    <label class="admin-checkbox-label">
-                        <input type="checkbox" ${gast.kind ? "checked" : ""} onchange="toggleKindState('${gast.name}', '${gast.tisch}', ${gast.platz}, this.checked)">
-                        Kind
-                    </label>
-                </span>
-                <span class="admin-row-tisch">${tischText} (Platz ${gast.platz})</span>
+            <input type="text" value="${gast.name}" placeholder="Name" onchange="updateGastProperty(${gast.id}, 'name', this.value)">
+            <input type="text" value="${gast.tisch}" placeholder="Tisch" onchange="updateGastProperty(${gast.id}, 'tisch', this.value)">
+            <input type="number" value="${gast.platz}" placeholder="Platz" onchange="updateGastProperty(${gast.id}, 'platz', this.value)">
+            <div class="admin-row-kind">
+                <input type="checkbox" ${gast.kind ? "checked" : ""} onchange="updateGastProperty(${gast.id}, 'kind', this.checked)">
             </div>
-            <div class="admin-row-actions">
-                <button class="btn-delete" title="Gast entfernen" onclick="entferneGast('${gast.name}', '${gast.tisch}', ${gast.platz})">🗑️</button>
-            </div>
+            <button class="btn-delete" title="Gast löschen" onclick="entferneGast(${gast.id})">🗑️</button>
         `;
         listeContainer.appendChild(row);
     });
 }
 
-// Gast Hinzufügen
+// Einzelne Eigenschaften eines Gastes live aktualisieren
+window.updateGastProperty = function(id, key, value) {
+    const target = gaeste.find(g => g.id === id);
+    if (!target) return;
+
+    if (key === "name") {
+        target.name = value.trim();
+    } else if (key === "tisch") {
+        let val = value.trim();
+        target.tisch = (val.toLowerCase() !== "braut" && !isNaN(val)) ? Number(val) : val;
+    } else if (key === "platz") {
+        target.platz = Number(value);
+    } else if (key === "kind") {
+        if (value) {
+            target.kind = true;
+        } else {
+            delete target.kind;
+        }
+    }
+
+    sitzplanErstellen();
+};
+
+// Neuer Gast Hinzufügen
 function neuerGastHinzufuegen() {
     const nameInput = document.getElementById("addGastName");
     const tischInput = document.getElementById("addGastTisch");
@@ -421,6 +433,7 @@ function neuerGastHinzufuegen() {
     }
 
     const neuerGast = {
+        id: Date.now(),
         name: name,
         tisch: tisch,
         platz: platz
@@ -439,33 +452,21 @@ function neuerGastHinzufuegen() {
 }
 
 // Gast Entfernen
-window.entferneGast = function(name, tisch, platz) {
-    if (!confirm(`Möchtest du ${name} wirklich vom Sitzplan entfernen?`)) return;
-
-    const index = gaeste.findIndex(g => g.name === name && String(g.tisch) === String(tisch) && g.platz == platz);
+window.entferneGast = function(id) {
+    const index = gaeste.findIndex(g => g.id === id);
     if (index !== -1) {
-        gaeste.splice(index, 1);
-        sitzplanErstellen();
-        renderAdminListe(document.getElementById("adminSearch").value.trim().toLowerCase());
-    }
-};
-
-// Wenn Kind-Haken gesetzt/entfernt wird
-window.toggleKindState = function(name, tisch, platz, isKind) {
-    const target = gaeste.find(g => g.name === name && String(g.tisch) === String(tisch) && g.platz == platz);
-    if (target) {
-        if (isKind) {
-            target.kind = true;
-        } else {
-            delete target.kind;
+        if (confirm(`Möchtest du ${gaeste[index].name} wirklich löschen?`)) {
+            gaeste.splice(index, 1);
+            sitzplanErstellen();
+            renderAdminListe(document.getElementById("adminSearch").value.trim().toLowerCase());
         }
-        sitzplanErstellen();
     }
 };
 
-// JSON Datei Herunterladen
+// JSON Herunterladen (bereinigt interne IDs)
 function downloadUpdatedJSON() {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(gaeste, null, 2));
+    const saubereGaeste = gaeste.map(({ id, ...rest }) => rest);
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(saubereGaeste, null, 2));
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute("href", dataStr);
     downloadAnchor.setAttribute("download", "data.json");
