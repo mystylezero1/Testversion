@@ -9,6 +9,7 @@ const sprueche = [
     "😄 Schön, dass du da bist!"
 ];
 
+// --- INITIALISIERUNG ---
 document.addEventListener("DOMContentLoaded", () => {
     const saalplan = document.getElementById("saalplan");
     const overlay = document.getElementById("overlay");
@@ -20,6 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (neueSucheBtn) neueSucheBtn.classList.add("hidden");
     if (welcome) welcome.classList.remove("hidden");
 
+    // Event Listener für Buttons & Eingabe
     const findenBtn = document.getElementById("finden");
     if (findenBtn) findenBtn.addEventListener("click", sucheGast);
 
@@ -33,10 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const gesamtPlanBtn = document.getElementById("zeigeGesamtenPlanBtn");
     if (gesamtPlanBtn) {
         gesamtPlanBtn.addEventListener("click", () => {
-            if (welcome) welcome.classList.add("hidden");
-            if (overlay) overlay.classList.remove("hidden");
-            if (saalplan) saalplan.classList.remove("hidden");
-            if (neueSucheBtn) neueSucheBtn.classList.remove("hidden");
+            openSaalplanView();
             clearHighlights();
             if (overlay) overlay.scrollTo({ top: 0, behavior: "smooth" });
         });
@@ -56,16 +55,48 @@ document.addEventListener("DOMContentLoaded", () => {
             if (modal) modal.remove();
         });
     }
+
+    // Admin Modal Event-Listener
+    const adminOpenBtn = document.getElementById("adminOpenBtn");
+    const adminCloseBtn = document.getElementById("adminCloseBtn");
+    const adminModal = document.getElementById("adminModal");
+    const adminSearch = document.getElementById("adminSearch");
+    const downloadJsonBtn = document.getElementById("downloadJsonBtn");
+
+    if (adminOpenBtn) {
+        adminOpenBtn.addEventListener("click", () => {
+            if (adminModal) adminModal.classList.remove("hidden");
+            renderAdminListe();
+        });
+    }
+
+    if (adminCloseBtn) {
+        adminCloseBtn.addEventListener("click", () => {
+            if (adminModal) adminModal.classList.add("hidden");
+        });
+    }
+
+    if (adminSearch) {
+        adminSearch.addEventListener("input", () => {
+            renderAdminListe(adminSearch.value.trim().toLowerCase());
+        });
+    }
+
+    if (downloadJsonBtn) {
+        downloadJsonBtn.addEventListener("click", downloadUpdatedJSON);
+    }
 });
 
+// --- DATEN LADEN ---
 fetch("data.json")
     .then(r => r.json())
     .then(data => {
         gaeste = data;
         sitzplanErstellen();
     })
-    .catch(err => console.error("Fehler beim Laden:", err));
+    .catch(err => console.error("Fehler beim Laden der data.json:", err));
 
+// --- SAALPLAN RENDERN ---
 function sitzplanErstellen() {
     const braut = document.getElementById("brauttisch");
     const tische = document.getElementById("tische");
@@ -75,6 +106,7 @@ function sitzplanErstellen() {
     braut.innerHTML = "";
     tische.innerHTML = "";
 
+    // Brauttisch
     let brautGaeste = gaeste.filter(g => g.tisch === "Braut");
     brautGaeste.sort((a, b) => a.platz - b.platz);
 
@@ -95,6 +127,7 @@ function sitzplanErstellen() {
         </div>
     `;
 
+    // Numerierte Tische (Positionierung im Grid)
     const tischPositionen = {
         3:  { col: 1, row: 1 }, 4:  { col: 2, row: 1 }, 5:  { col: 3, row: 1 }, 6:  { col: 4, row: 1 }, 7:  { col: 5, row: 1 },
         8:  { col: 1, row: 2 }, 9:  { col: 2, row: 2 }, 10: { col: 3, row: 2 }, 11: { col: 4, row: 2 }, 12: { col: 5, row: 2 },
@@ -140,6 +173,7 @@ function sitzplanErstellen() {
         tische.appendChild(box);
     });
 
+    // Buffet & Ausschank Box
     const buffetDiv = document.createElement("div");
     buffetDiv.className = "buffet-box";
     if (isDesktop) {
@@ -153,6 +187,7 @@ function sitzplanErstellen() {
     tische.appendChild(buffetDiv);
 }
 
+// HTML für einzelne Sitzplätze
 function platzHTML(g) {
     if (g.disabled) {
         return `<div class="platz disabled"></div>`;
@@ -167,11 +202,13 @@ function platzHTML(g) {
     `;
 }
 
+// --- HIGHLIGHTS ZURÜCKSETZEN ---
 function clearHighlights() {
     document.querySelectorAll(".highlight").forEach(t => t.classList.remove("highlight"));
     document.querySelectorAll(".highlight-name").forEach(n => n.classList.remove("highlight-name"));
 }
 
+// --- SUCH-LOGIK ---
 function sucheGast() {
     const searchInput = document.getElementById("search");
     if (!searchInput) return;
@@ -179,7 +216,7 @@ function sucheGast() {
     const eingabe = searchInput.value.trim().toLowerCase();
     if (eingabe === "") return;
 
-    // Prüfe, ob nach einer Tischnummer gesucht wird (z. B. "5" oder "tisch 5")
+    // Prüfen, ob nach Tischnummer gesucht wird (z. B. "5" oder "Tisch 5")
     const tischMatch = eingabe.match(/^(?:tisch\s*)?(\d+)$/i);
     if (tischMatch) {
         const tischNummer = tischMatch[1];
@@ -187,7 +224,7 @@ function sucheGast() {
         return;
     }
 
-    // Suche nach Gastname
+    // Suche nach Gästenamen
     const treffer = gaeste.filter(g => !g.disabled && g.name.toLowerCase().includes(eingabe));
 
     if (treffer.length === 0) {
@@ -285,7 +322,7 @@ function zeigeGastOnPlan(gast) {
     if (zielElement) {
         zielElement.classList.add("highlight");
         
-        // Suche und blinke das konkrete Name-Kästchen auf!
+        // Markiere den spezifischen Sitzplatz
         const nameCard = zielElement.querySelector(`.platz[data-platz="${gast.platz}"]`);
         if (nameCard) {
             nameCard.classList.add("highlight-name");
@@ -299,9 +336,19 @@ function zeigeGastOnPlan(gast) {
     anzeigeSprechblase(gast.name);
 }
 
+// --- SPRECHBLASE, SOUND & KONFETTI ---
 function anzeigeSprechblase(name) {
     const speech = document.getElementById("speech");
     if (!speech) return;
+
+    // Audio abspielen
+    const audio = document.getElementById("ding");
+    if (audio) {
+        audio.currentTime = 0;
+        audio.play().catch(err => {
+            console.log("Audio konnte nicht automatisch abgespielt werden:", err);
+        });
+    }
 
     const zufallsSpruch = sprueche[Math.floor(Math.random() * sprueche.length)];
     speech.innerHTML = `<h2>${name}</h2><p>${zufallsSpruch}</p>`;
@@ -314,4 +361,58 @@ function anzeigeSprechblase(name) {
     setTimeout(() => {
         speech.classList.add("hidden");
     }, 4000);
+}
+
+// --- ADMIN KONSOLE LOGIK ---
+function renderAdminListe(filter = "") {
+    const listeContainer = document.getElementById("adminGaesteListe");
+    if (!listeContainer) return;
+
+    listeContainer.innerHTML = "";
+
+    const gefilterteGaeste = gaeste.filter(g => !g.disabled && g.name.toLowerCase().includes(filter));
+
+    gefilterteGaeste.forEach((gast) => {
+        const row = document.createElement("div");
+        row.className = "admin-row";
+
+        const tischText = gast.tisch === "Braut" ? "Brauttisch" : `Tisch ${gast.tisch}`;
+
+        row.innerHTML = `
+            <div class="admin-row-info">
+                <span class="admin-row-name">${gast.name}</span>
+                <span class="admin-row-tisch">${tischText} (Platz ${gast.platz})</span>
+            </div>
+            <label class="admin-checkbox-label">
+                <input type="checkbox" ${gast.kind ? "checked" : ""} onchange="toggleKindState('${gast.name}', ${gast.platz}, this.checked)">
+                Kind ⭐
+            </label>
+        `;
+        listeContainer.appendChild(row);
+    });
+}
+
+// Wenn Haken gesetzt/entfernt wird
+window.toggleKindState = function(name, platz, isKind) {
+    const target = gaeste.find(g => g.name === name && g.platz === platz);
+    if (target) {
+        if (isKind) {
+            target.kind = true;
+        } else {
+            delete target.kind;
+        }
+        // Sitzplan im Hintergrund live neu rendern
+        sitzplanErstellen();
+    }
+};
+
+// JSON Datei Herunterladen
+function downloadUpdatedJSON() {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(gaeste, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", "data.json");
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
 }
