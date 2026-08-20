@@ -5,7 +5,7 @@ import { defineConfig } from 'vite';
 
 export default defineConfig(() => {
   return {
-    // Wichtig für GitHub Pages:
+
     base: '/Testversion/',
 
     plugins: [
