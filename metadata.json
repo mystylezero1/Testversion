@@ -1,0 +1,6 @@
+{
+  "name": "Hochzeits-Sitzplan & Tischübersicht",
+  "description": "Eleganter interaktiver Hochzeits-Saalplan mit Gästesuche, Spruch-Modal im Gold-Design, mobilem Taxi-Rollup sowie Impressum & Datenschutz.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

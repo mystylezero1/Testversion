@@ -1,102 +1,17 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="noindex, nofollow, noarchive">
-    <meta name="referrer" content="no-referrer">
-    <title>Hochzeitsgesellschaft Anja & Dino</title>
-    
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Saalplan & Tischübersicht | Unsere Hochzeit</title>
+    <meta name="description" content="Saalplan, Tischübersicht, Gästesitzplätze, Sprüche und Taxi-Informationen für die Hochzeit." />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-    
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-
-    <div id="welcome">
-        <div class="welcome-box">
-            <h1>💍</h1>
-            <h2>Hochzeitsgesellschaft</h2>
-            <h3>Anja & Dino</h3>
-            
-            <input type="text" id="search" placeholder="Name oder Tischnummer..." autocomplete="off">
-            <button id="finden">Gast oder Tisch finden</button>
-            <button id="zeigeGesamtenPlanBtn" class="btn-secondary">Gesamten Saalplan anzeigen</button>
-        </div>
-    </div>
-
-    <div id="overlay" class="hidden">
-        <div id="saalplan">
-            <div id="speech" class="speech hidden"></div>
-            
-            <div id="brautbereich">
-                <div id="brauttisch"></div>
-            </div>
-
-            <div id="tische"></div>
-
-            <div class="saal-unten">
-                <div class="eingang">🚪 Eingang</div>
-                <div class="dj">🎧 DJ & Tanzfläche</div>
-            </div>
-        </div>
-    </div>
-
-    <button id="neueSucheBtn" class="hidden">🔍 Neue Suche</button>
-
-    <!-- Admin Button unten links (nur auf Desktop) -->
-    <button id="adminOpenBtn">⚙️ Admin</button>
-
-    <!-- Admin Modal -->
-    <div id="adminModal" class="auswahl-modal hidden">
-        <div class="admin-box">
-            <div class="admin-header">
-                <h3>⚙️ Admin-Konsole</h3>
-                <button id="adminCloseBtn" class="close-x">&times;</button>
-            </div>
-
-            <!-- Neuer Gast hinzufügen -->
-            <div class="admin-add-section">
-                <h4>➕ Neuen Gast hinzufügen</h4>
-                <div class="admin-add-grid">
-                    <input type="text" id="addGastName" placeholder="Name (z.B. Max Mustermann)">
-                    <input type="text" id="addGastTisch" placeholder="Tisch (z.B. 3 oder braut)">
-                    <input type="number" id="addGastPlatz" placeholder="Platz (1-14)">
-                    <label class="admin-checkbox-label">
-                        <input type="checkbox" id="addGastKind"> ⭐ Kind
-                    </label>
-                    <button id="addGastBtn" class="btn-add">Hinzufügen</button>
-                </div>
-            </div>
-
-            <hr class="admin-divider">
-
-            <!-- Suche & Liste bearbeiten -->
-            <div class="admin-list-header">
-                <h4>📋 Gästeliste bearbeiten</h4>
-                <input type="text" id="adminSearch" placeholder="🔍 Name filtern..." autocomplete="off">
-            </div>
-            
-            <div class="admin-table-header">
-                <span>Name</span>
-                <span>Tisch</span>
-                <span>Platz</span>
-                <span>Kind</span>
-                <span>Aktion</span>
-            </div>
-
-            <div id="adminGaesteListe" class="admin-liste"></div>
-            
-            <div class="admin-footer">
-                <button id="downloadJsonBtn" class="btn-success">💾 Änderungen als data.json herunterladen</button>
-            </div>
-        </div>
-    </div>
-
-    <audio id="ding" src="ding.mp3" preload="auto"></audio>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <script src="app.js"></script>
-</body>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Great+Vibes&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  </head>
+  <body class="bg-[#FAF8F5] text-[#2C2623] antialiased selection:bg-[#E6CA92] selection:text-[#2C2623]">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
+
