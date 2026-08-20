@@ -596,6 +596,6 @@ export const TAXI_SERVICES: TaxiService[] = [
 ];
 
 export const APP_LINKS = {
-  spotifyPlaylist: 'https://open.spotify.com/playlist/37i9dQZF1DX4WYpdgoIcn6',
-  photoApp: 'https://photos.google.com',
+  spotifyPlaylist: 'https://open.spotify.com/playlist/0JUN3xAjBCaxL0UwXqlFO8?si=y9ZMWdueQ2WHWD7pmQVJwg&utm_source=whatsapp&pi=IAL6_fS3TUKX3&sci=spotify%3Acard-config%3A0VUG1Xza74adnjwokQU1Gm&nd=1&dlsi=8eb7f45a1f9a4831',
+  photoApp: 'https://app.mymillionsnaps.de/f71210da-70bf-4078-ab79-992de5e2316e/pictures',
 };
